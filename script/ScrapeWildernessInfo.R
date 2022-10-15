@@ -237,6 +237,64 @@ WT2 <- WT2 %>%
 # saveRDS(WT2, "./WildernessByWord.rds")
 WT2 <- readRDS("./WildernessByWord.rds")
 
+# One of the first questions we might ask is, which word is used most frequently?
+# A follow-up question might be, which adjective is most frequent? However, instead of looking for the most common adjective across all descriptions, we can find the most common adjective in each description and then count the number of WIlderness Areas for which the same word is most common.
+plot_grid(
+  WT2 %>% 
+    group_by(word) %>%
+    tally() %>%
+    arrange(desc(n)) %>%
+    top_n(20) %>%
+    ggplot(aes(x = fct_reorder(word, n), 
+               y = n)) +
+    geom_segment(aes(xend = word,
+                     y = 0,
+                     yend = n), 
+                 col = "grey70",
+                 size = 1) +
+    geom_point(aes(size = n), col = "grey50", pch = 16) +
+    coord_flip() +
+    theme(axis.line.y = element_blank(),
+          panel.grid.major = element_blank(),
+          plot.title = element_text(vjust = 4),
+          plot.margin=unit(c(1,0.2,0.2,0.2), "cm")) +
+    labs(x = "",
+         y = "Word use (total frequency)",
+         title = "What word occurs most frequently?",
+         subtitle = "Across all Wilderness descriptions, \nwhich word is the most common?"),
+  
+  WT2 %>% 
+    filter(POS %in% c("JJ", "JJS", "JJR")) %>%
+    group_by(word, Wild) %>%
+    tally() %>%
+    group_by(Wild) %>%
+    filter(n == max(n)) %>%
+    group_by(word) %>%
+    tally() %>%
+    arrange(desc(n)) %>%
+    top_n(20) %>%
+    ggplot(aes(x = fct_reorder(word, n), 
+               y = n)) +
+    geom_segment(aes(xend = word,
+                     y = 0,
+                     yend = n), 
+                 col = "grey70",
+                 size = 1) +
+    geom_point(aes(size = n), col = "grey50", pch = 16) +
+    coord_flip() +
+    theme(axis.line.y = element_blank(),
+          panel.grid.major = element_blank(),
+          plot.title = element_text(vjust = 5),
+          plot.margin=unit(c(1,0.2,0.2,0.2), "cm")) +
+    labs(x = "",
+         y = "Number of Wilderness Areas descriptions",
+         title = "What adjectives describe Wilderness Areas?",
+         subtitle = expression("Among the most frequent adjectives in a description, \nwhich is most common across Wildnerness Areas?")),
+  nrow = 1
+)
+ggsave("./figs/TotalFrequency.png", height = 6, width = 8, dpi = 300)
+
+# We also might want to consider differences across regions.
 WT2 %>%
   group_by(Region) %>% 
   summarise(Areas = n_distinct(Wild),
@@ -565,69 +623,5 @@ WT2 %>%
 0.566 + 0.05
 0.566 - 0.05
 
-
-WT2 %>% 
-  group_by(word) %>%
-  tally() %>%
-  arrange(desc(n))
-
-WT2 %>%
-  group_by(word, Wild) %>%
-  tally() %>%
-  group_by(Wild) %>%
-  filter(n == max(n)) %>%
-  group_by(word) %>%
-  tally() %>%
-  arrange(desc(n))
-
-WT2$POS %>% unique()
-
-WT2 %>% 
-  group_by(word) %>%
-  tally() %>%
-  arrange(desc(n)) %>%
-  top_n(20) %>%
-  ggplot(aes(x = fct_reorder(word, n), 
-             y = n)) +
-  geom_segment(aes(xend = word,
-                   y = 0,
-                   yend = n), 
-               col = "grey70",
-               size = 1) +
-  geom_point(aes(size = n), col = "grey50", pch = 16) +
-  coord_flip() +
-  scale_color_manual(values = c("#8ba506", "grey70", "#bb5a00")) +
-  theme(axis.line.y = element_blank(),
-        panel.grid.major = element_blank()) +
-  labs(x = "",
-       y = "Word use (total frequency)")
-
-WT2 %>% 
-  filter(POS %in% c("JJ", "JJS", "JJR")) %>%
-  group_by(word, Wild) %>%
-  tally() %>%
-  group_by(Wild) %>%
-  filter(n == max(n)) %>%
-  group_by(word) %>%
-  tally() %>%
-  arrange(desc(n)) %>%
-  top_n(20) %>%
-  ggplot(aes(x = fct_reorder(word, n), 
-             y = n)) +
-  geom_segment(aes(xend = word,
-                   y = 0,
-                   yend = n), 
-               col = "grey70",
-               size = 1) +
-  geom_point(aes(size = n), col = "grey50", pch = 16) +
-  coord_flip() +
-  scale_color_manual(values = c("#8ba506", "grey70", "#bb5a00")) +
-  theme(axis.line.y = element_blank(),
-        panel.grid.major = element_blank()) +
-  labs(x = "",
-       y = "Number of Wilderness Areas descriptions",
-       title = "What adjectives describe Wilderness Areas?",
-       subtitle = "Across all descriptions which adjactive is the most frequent?")
-ggsave("./figs/Adjective.png", height = 6, width = 6, dpi = 300)
 
 
