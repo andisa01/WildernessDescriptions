@@ -292,7 +292,7 @@ plot_grid(
          subtitle = expression("Among the most frequent adjectives in a description, \nwhich is most common across Wildnerness Areas?")),
   nrow = 1
 )
-ggsave("./figs/TotalFrequency.png", height = 6, width = 8, dpi = 300)
+ggsave("./figs/TotalFrequency.png", height = 5, width = 10, dpi = 300)
 
 # We also might want to consider differences across regions.
 WT2 %>%
